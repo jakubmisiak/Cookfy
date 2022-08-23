@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
 namespace Cookfy.Controllers;
 
-public class PostController
+[Route("api/post")]
+public class PostController : ControllerBase
 {
     
 }

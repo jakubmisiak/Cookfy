@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Cookfy.Controllers;
 
-public class CommentController
+[Route("api/comment")]
+public class CommentController : ControllerBase
 {
     
 }

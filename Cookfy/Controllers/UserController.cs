@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Cookfy.Controllers;
 
-public class UserController
+[Route("api/user")]
+public class UserController : ControllerBase
 {
     
 }

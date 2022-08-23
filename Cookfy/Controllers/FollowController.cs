@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Cookfy.Controllers;
 
-public class FollowController
+[Route("api/follow")]
+public class FollowController : ControllerBase
 {
     
 }

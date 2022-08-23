@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace Cookfy.Controllers;
 
-public class LikeController
+[Route("api/like")]
+public class LikeController : ControllerBase
 {
     
 }
