@@ -13,6 +13,7 @@ public class CookfyDbContext : DbContext
         modelBuilder.Entity<User>().Property(r => r.Password).IsRequired().HasMaxLength(32);
         modelBuilder.Entity<User>().Property(r => r.Description).HasMaxLength(128);
 
+        modelBuilder.Entity<Post>().Property(r => r.Title).IsRequired().HasMaxLength(128);
         modelBuilder.Entity<Post>().Property(r => r.Description).IsRequired().HasMaxLength(1024);
         modelBuilder.Entity<Post>().Property(r => r.Date).IsRequired();
         modelBuilder.Entity<Post>().Property(r => r.Ingredient).IsRequired();
