@@ -15,23 +15,23 @@ public class LikeController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post([FromRoute] int postId)
+    public async Task<ActionResult> Post([FromRoute] int postId)
     {
-        _service.Post(postId);
+        await _service.Post(postId);
         return Ok();
     }
 
     [HttpGet]
-    public ActionResult<List<Like>> Get([FromRoute] int postId)
+    public async Task<ActionResult<List<Like>>> Get([FromRoute] int postId)
     {
-        var likes = _service.Get(postId);
+        var likes = await _service.Get(postId);
         return Ok(likes);
     }
 
     [HttpDelete("{likeId}")]
-    public ActionResult Delete([FromRoute] int postId, [FromRoute] int likeId)
+    public async Task<ActionResult> Delete([FromRoute] int postId, [FromRoute] int likeId)
     {
-        _service.Delete(postId, likeId);
+        await _service.Delete(postId, likeId);
         return NoContent();
     }
 }

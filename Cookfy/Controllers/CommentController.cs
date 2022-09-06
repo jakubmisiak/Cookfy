@@ -16,23 +16,23 @@ public class CommentController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post([FromRoute]int postId, [FromBody]AddCommentDto dto)
+    public async Task<ActionResult> Post([FromRoute]int postId, [FromBody]AddCommentDto dto)
     {
-        _service.Post(postId, dto);
+        await _service.Post(postId, dto);
         return Ok();
     }
 
     [HttpGet]
-    public ActionResult<List<CommentDto>> Post([FromRoute]int postId)
+    public async Task<ActionResult<List<CommentDto>>> Post([FromRoute]int postId)
     {
-        var comments = _service.Get(postId);
+        var comments = await _service.Get(postId);
         return Ok(comments);
     }
 
     [HttpDelete("{commentId}")]
-    public ActionResult Delete([FromRoute] int postId, [FromRoute] int commentId)
+    public async Task<ActionResult> Delete([FromRoute] int postId, [FromRoute] int commentId)
     {
-        _service.Delete(postId, commentId);
+        await _service.Delete(postId, commentId);
         return NoContent();
     }
 }
