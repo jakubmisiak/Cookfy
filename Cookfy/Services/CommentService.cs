@@ -7,43 +7,46 @@ namespace Cookfy.Services;
 
 public interface ICommentService
 {
-    public void Post(int postId, AddCommentDto dto);
-    public List<CommentDto> Get(int postId);
-    public void Delete(int postId,int commentId);
+    public Task Post(int postId, AddCommentDto dto);
+    public Task<List<CommentDto>> Get(int postId);
+    public Task Delete(int postId,int commentId);
 }
 
 public class CommentService : ICommentService
 {
     private readonly CookfyDbContext _context;
     private readonly IMapper _mapper;
-    public CommentService(CookfyDbContext dbContext, IMapper mapper)
+    private readonly IUserContextService _userContextService;
+    public CommentService(CookfyDbContext dbContext, IMapper mapper, IUserContextService userContextService)
     {
         _context = dbContext;
         _mapper = mapper;
+        _userContextService = userContextService;
     }
 
-    public void Post(int postId, AddCommentDto dto)
+    public async Task Post(int postId, AddCommentDto dto)
     {
         var comment = _mapper.Map<Comment>(dto);
+        comment.UserId = _userContextService.GetUserId;
         comment.Date = DateTime.Now;
         comment.PostId = postId;
         _context.Comments.Add(comment);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public List<CommentDto> Get(int postId)
+    public async Task<List<CommentDto>> Get(int postId)
     {
-        var coments = _context.Comments.Include(r => r.User)
-            .Where(r => r.PostId == postId).ToList();
+        var coments = await _context.Comments.Include(r => r.User)
+            .Where(r => r.PostId == postId).ToListAsync();
         var comentsDto = _mapper.Map<List<CommentDto>>(coments);
         return comentsDto;
     }
 
-    public void Delete(int postId,int commentId)
+    public async Task Delete(int postId,int commentId)
     {
-        var post = _context.Posts.FirstOrDefault(r => r.Id == postId);
-        var comment = _context.Comments.FirstOrDefault(r => r.Id == commentId);
+        var post = await _context.Posts.FirstOrDefaultAsync(r => r.Id == postId);
+        var comment = await _context.Comments.FirstOrDefaultAsync(r => r.Id == commentId);
         _context.Comments.Remove(comment);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

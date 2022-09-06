@@ -1,5 +1,6 @@
 using Cookfy.Models;
 using Cookfy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Cookfy.Controllers;
 
@@ -15,37 +16,38 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<PostDto>> GetAll()
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
     {
-        var posts = _service.GetAll();
+        var posts = await _service.GetAll();
         return Ok(posts);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<PostDto> GetPost([FromRoute]int id)
+    public async Task<ActionResult<PostDto>> GetPost([FromRoute]int id)
     {
-        var post = _service.GetPost(id);
+        var post = await _service.GetPost(id);
         return Ok(post);
     }
 
     [HttpPost]
-    public ActionResult AddPost([FromBody] AddPostDto postDto)
+    [Authorize]
+    public async Task<ActionResult> AddPost([FromBody] AddPostDto postDto)
     {
-        _service.AddPost(postDto);
+        await _service.AddPost(postDto);
         return Ok();
     }
     
     [HttpPut("update/{id}")]
-    public ActionResult UpdatePost([FromRoute]int id,[FromBody] AddPostDto postDto)
+    public async Task<ActionResult> UpdatePost([FromRoute]int id,[FromBody] AddPostDto postDto)
     {
-        _service.UpdatePost(id, postDto);
+        await _service.UpdatePost(id, postDto);
         return Ok();
     }
 
     [HttpDelete("{id}")]
-    public ActionResult Delete([FromRoute]int id)
+    public async Task<ActionResult> Delete([FromRoute]int id)
     {
-        _service.Delete(id);
+        await _service.Delete(id);
         return Ok();
     }
 }

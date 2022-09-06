@@ -16,37 +16,44 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("register")]
-    public ActionResult RegisterUser([FromBody]RegisterUserDto dto)
+    public async Task<ActionResult> RegisterUser([FromBody]RegisterUserDto dto)
     {
-        _userService.RegisterUser(dto);
+        await _userService.RegisterUser(dto);
         return Ok();
     }
     [HttpGet]
-    public ActionResult<IEnumerable<UserDto>> GetAll()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
     {
-        var userDtos = _userService.GetAll();
+        var userDtos = await _userService.GetAll();
 
         return Ok(userDtos);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<UserDto>GetUser([FromRoute]int id)
+    public async Task<ActionResult<UserDto>>GetUser([FromRoute]int id)
     {
-        var user = _userService.GetUser(id);
+        var user = await _userService.GetUser(id);
         return Ok(user);
     }
 
     [HttpDelete("{id}")]
-    public ActionResult DeleteUser([FromRoute]int id)
+    public async Task<ActionResult> DeleteUser([FromRoute]int id)
     {
-        _userService.DeleteUser(id);
+        await _userService.DeleteUser(id);
         return Ok();
     }
 
     [HttpPut("update/{id}")]
-    public ActionResult UpdateUser([FromRoute]int id, [FromBody]RegisterUserDto dto)
+    public async Task<ActionResult> UpdateUser([FromRoute]int id, [FromBody]RegisterUserDto dto)
     {
-        _userService.UpdateUser(id, dto);
+        await _userService.UpdateUser(id, dto);
         return Ok();
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult> Login([FromBody] LoginDto dto)
+    {
+        var token = await _userService.GenerateJwt(dto);
+        return Ok(token);
     }
 }

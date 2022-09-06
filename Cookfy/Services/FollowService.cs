@@ -1,44 +1,47 @@
 using Cookfy.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cookfy.Services;
 
 public interface IFollowService
 {
-    public void Post(int id);
-    public List<Follow> Get(int id);
-    public void Delete(int postId, int followId);
+    public Task Post(int id);
+    public Task<List<Follow>> Get(int id);
+    public Task Delete(int postId, int followId);
 }
 
 public class FollowService : IFollowService
 {
     private readonly CookfyDbContext _context;
+    private readonly IUserContextService _userContextService;
     
-    public FollowService(CookfyDbContext context)
+    public FollowService(CookfyDbContext context, IUserContextService userContextService)
     {
         _context = context;
+        _userContextService = userContextService;
     }
 
-    public void Post(int id)
+    public async Task Post(int id)
     {
         var follow = new Follow()
         {
             FollowedUserId = id,
-            FollowingUserId = 1
+            FollowingUserId = _userContextService.GetUserId
         };
         _context.Follows.Add(follow);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public List<Follow> Get(int id)
+    public async Task<List<Follow>> Get(int id)
     {
-        var follows = _context.Follows.Where(r => r.FollowedUserId == id).ToList();
+        var follows = await _context.Follows.Where(r => r.FollowedUserId == id).ToListAsync();
         return follows;
     }
 
-    public void Delete(int postId, int followId)
+    public async Task Delete(int postId, int followId)
     {
-        var follows = _context.Follows.FirstOrDefault(r => r.FollowedUserId == followId);
+        var follows = await _context.Follows.FirstOrDefaultAsync(r => r.FollowedUserId == followId);
         _context.Follows.Remove(follows);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

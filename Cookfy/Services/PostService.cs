@@ -2,66 +2,70 @@ using AutoMapper;
 using Cookfy.Entities;
 using Cookfy.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace Cookfy.Services;
 
 public interface IPostService
 {
-    public List<PostDto> GetAll();
-    public PostDto GetPost(int id);
-    public void AddPost(AddPostDto postDto);
-    public void Delete(int id);
-    public void UpdatePost(int id, AddPostDto dto);
+    public Task<List<PostDto>> GetAll();
+    public Task<PostDto> GetPost(int id);
+    public Task AddPost(AddPostDto postDto);
+    public Task Delete(int id);
+    public Task UpdatePost(int id, AddPostDto dto);
 }
 
 public class PostService : IPostService
 {
     private readonly CookfyDbContext _context;
     private readonly IMapper _mapper;
+    private readonly IUserContextService _userContextService;
 
-    public PostService(CookfyDbContext context, IMapper mapper)
+    public PostService(CookfyDbContext context, IMapper mapper, IUserContextService userContextService)
     {
         _context = context;
         _mapper = mapper;
+        _userContextService = userContextService;
     }
 
-    public List<PostDto> GetAll()
+    public async Task<List<PostDto>> GetAll()
     {
-       var posts = _context.Posts.Include(r => r.User).ToList();
+       var posts = await _context.Posts.Include(r => r.User).ToListAsync();
        var postsDto = _mapper.Map<List<PostDto>>(posts);
        return postsDto;
     }
 
-    public PostDto GetPost(int id)
+    public async Task<PostDto> GetPost(int id)
     {
-        var post = GetPostById(id);
+        var post = await GetPostById(id);
         var postDto = _mapper.Map<PostDto>(post);
         return postDto;
     }
 
-    public void AddPost(AddPostDto postDto)
+    public async Task AddPost(AddPostDto postDto)
     {
         var post = _mapper.Map<Post>(postDto);
+        post.UserId = _userContextService.GetUserId;
         post.Date = DateTime.Now;
         _context.Posts.Add(post);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void UpdatePost(int id, AddPostDto dto)
+    public async Task UpdatePost(int id, AddPostDto dto)
     {
-        var post = GetPostById(id);
+        var post = await GetPostById(id);
         post.Description = dto.Description;
         post.Ingredient = dto.Ingredient;
         post.Photo = dto.Photo;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void Delete(int id)
+    public async Task Delete(int id)
     {
-        var post = GetPostById(id);
+        var post = await GetPostById(id);
         _context.Posts.Remove(post);
-        _context.SaveChanges();
+        _context.SaveChangesAsync();
     }
 
-    private Post GetPostById(int id) => _context.Posts.Include(r => r.User).FirstOrDefault(r => r.Id == id);
+    private async Task<Post> GetPostById(int id) => await _context.Posts.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
 }

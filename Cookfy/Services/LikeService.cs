@@ -1,44 +1,46 @@
 using Cookfy.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cookfy.Services;
 
 public interface ILikeService
 {
-    public void Post(int id);
-    public List<Like> Get(int id);
-    public void Delete(int postId, int likeId);
+    public Task Post(int id);
+    public Task<List<Like>> Get(int id);
+    public Task Delete(int postId, int likeId);
 }
 
 public class LikeService : ILikeService
 {
     private readonly CookfyDbContext _context;
-    
-    public LikeService(CookfyDbContext context)
+    private readonly IUserContextService _userContextService;
+    public LikeService(CookfyDbContext context, IUserContextService userContextService)
     {
         _context = context;
+        _userContextService = userContextService;
     }
 
-    public void Post(int id)
+    public async Task Post(int id)
     {
         var like = new Like()
         {
             PostId = id,
-            UserId = 1
+            UserId = _userContextService.GetUserId
         };
         _context.Likes.Add(like);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public List<Like> Get(int id)
+    public async Task<List<Like>> Get(int id)
     {
-        var likes = _context.Likes.Where(r => r.PostId == id).ToList();
+        var likes = await _context.Likes.Where(r => r.PostId == id).ToListAsync();
         return likes;
     }
 
-    public void Delete(int postId, int likeId)
+    public async Task Delete(int postId, int likeId)
     {
-        var like = _context.Likes.FirstOrDefault(r => r.Id == likeId);
+        var like = await _context.Likes.FirstOrDefaultAsync(r => r.Id == likeId);
         _context.Likes.Remove(like);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }
