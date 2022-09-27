@@ -6,6 +6,7 @@ namespace Cookfy.Controllers;
 
 [Route("api/post")]
 [ApiController]
+[Authorize]
 public class PostController : ControllerBase
 {
     private readonly IPostService _service;
@@ -50,4 +51,12 @@ public class PostController : ControllerBase
         await _service.Delete(id);
         return Ok();
     }
+    
+    [HttpGet("search/{title}")]
+    public async Task<ActionResult<List<PostDto>>> GetByTitle([FromRoute]string title)
+    {
+        var dtos = await _service.FindByName(title);
+        return Ok(dtos);
+    }
+
 }

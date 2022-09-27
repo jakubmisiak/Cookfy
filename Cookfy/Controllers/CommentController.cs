@@ -1,11 +1,13 @@
 using System.Security.Cryptography.X509Certificates;
 using Cookfy.Models;
 using Cookfy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cookfy.Controllers;
 
 [Route("api/post/{postId}/comment")]
+[Authorize]
 public class CommentController : ControllerBase
 {
     public readonly ICommentService _service;
