@@ -1,10 +1,12 @@
 using Cookfy.Entities;
 using Cookfy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cookfy.Controllers;
 
 [Route("api/post/{postId}/Like")]
+[Authorize]
 public class LikeController : ControllerBase
 {
     private readonly ILikeService _service;

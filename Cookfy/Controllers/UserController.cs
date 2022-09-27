@@ -1,11 +1,14 @@
+using System.Runtime.CompilerServices;
 using Cookfy.Models;
 using Cookfy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cookfy.Controllers;
 
 [Route("api/user")]
 [ApiController]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -51,9 +54,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<ActionResult> Login([FromBody] LoginDto dto)
     {
         var token = await _userService.GenerateJwt(dto);
         return Ok(token);
+    }
+    
+    [HttpGet("search/{name}")]
+    public async Task<ActionResult<List<UserDto>>> GetByName([FromRoute]string name)
+    {
+        var dtos = await _userService.FindByName(name);
+        return Ok(dtos);
     }
 }

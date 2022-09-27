@@ -13,6 +13,7 @@ public interface IPostService
     public Task AddPost(AddPostDto postDto);
     public Task Delete(int id);
     public Task UpdatePost(int id, AddPostDto dto);
+    public Task<List<PostDto>> FindByName(string searchName);
 }
 
 public class PostService : IPostService
@@ -65,6 +66,13 @@ public class PostService : IPostService
         var post = await GetPostById(id);
         _context.Posts.Remove(post);
         _context.SaveChangesAsync();
+    }
+
+    public async Task<List<PostDto>> FindByName(string searchName)
+    {
+        var posts = await _context.Posts.Where(b => b.Title.Contains(searchName)).ToListAsync();
+        var postsDto = _mapper.Map<List<PostDto>>(posts);
+        return postsDto;
     }
 
     private async Task<Post> GetPostById(int id) => await _context.Posts.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);

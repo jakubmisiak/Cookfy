@@ -1,4 +1,5 @@
 using Cookfy.Entities;
+using Cookfy.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cookfy.Services;
@@ -6,7 +7,7 @@ namespace Cookfy.Services;
 public interface ILikeService
 {
     public Task Post(int id);
-    public Task<List<Like>> Get(int id);
+    public Task<LikeDto> Get(int id);
     public Task Delete(int postId, int likeId);
 }
 
@@ -31,9 +32,15 @@ public class LikeService : ILikeService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<Like>> Get(int id)
+    public async Task<LikeDto> Get(int id)
     {
-        var likes = await _context.Likes.Where(r => r.PostId == id).ToListAsync();
+        var likesCount = await _context.Likes.Where(r => r.PostId == id).CountAsync();
+        var currentUserLike = await _context.Likes.AnyAsync(r => r.PostId == id && r.UserId == _userContextService.GetUserId);
+        var likes = new LikeDto()
+        {
+            LikesCount = likesCount,
+            CurrentUserLike = currentUserLike
+        };
         return likes;
     }
 

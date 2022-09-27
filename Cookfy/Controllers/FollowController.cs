@@ -1,10 +1,12 @@
 using Cookfy.Entities;
 using Cookfy.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cookfy.Controllers;
 
 [Route("api/follow")]
+[Authorize]
 public class FollowController : ControllerBase
 {
     private readonly IFollowService _service;

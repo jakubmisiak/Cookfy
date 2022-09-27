@@ -18,7 +18,7 @@ public interface IUserService
     public Task<UserDto> GetUser(int id);
     public Task DeleteUser(int id);
     public Task UpdateUser(int id, RegisterUserDto dto);
-
+    public Task<List<UserDto>> FindByName(string searchName);
     public Task<string> GenerateJwt(LoginDto dto);
 }
 
@@ -120,6 +120,13 @@ public class UserService : IUserService
 
         var tokenHandler = new JwtSecurityTokenHandler();
         return tokenHandler.WriteToken(token);
+    }
+    
+    public async Task<List<UserDto>> FindByName(string searchName)
+    {
+        var users = await _context.Users.Where(b => b.UserName.Contains(searchName)).ToListAsync();
+        var userDtos = _mapper.Map<List<UserDto>>(users);
+        return userDtos;
     }
 
     private async Task<User> GetUserById(int id) => await _context.Users.FirstOrDefaultAsync(r => r.Id == id);
