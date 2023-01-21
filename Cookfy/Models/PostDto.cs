@@ -9,7 +9,6 @@ public class PostDto
     public int UserId { get; set; }
     public virtual UserDto User { get; set; }
     public string Photo { get; set; }
-    public string Ingredient { get; set; }
     public DateTime Date { get; set; }
-    public string Description { get; set; }
+    public string Value { get; set; }
 }

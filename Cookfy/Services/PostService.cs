@@ -55,8 +55,7 @@ public class PostService : IPostService
     public async Task UpdatePost(int id, AddPostDto dto)
     {
         var post = await GetPostById(id);
-        post.Description = dto.Description;
-        post.Ingredient = dto.Ingredient;
+        post.Value = dto.Value;
         post.Photo = dto.Photo;
         await _context.SaveChangesAsync();
     }
