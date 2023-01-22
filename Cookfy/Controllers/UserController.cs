@@ -8,7 +8,6 @@ namespace Cookfy.Controllers;
 
 [Route("api/user")]
 [ApiController]
-[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -47,7 +46,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
-    public async Task<ActionResult> UpdateUser([FromRoute]int id, [FromBody]RegisterUserDto dto)
+    public async Task<ActionResult> UpdateUser([FromRoute]int id, [FromBody]UpdateUserDto dto)
     {
         await _userService.UpdateUser(id, dto);
         return Ok();
@@ -62,9 +61,9 @@ public class UserController : ControllerBase
     }
     
     [HttpGet("search/{name}")]
-    public async Task<ActionResult<List<UserDto>>> GetByName([FromRoute]string name)
+    public async Task<ActionResult<List<UserDto>>> GetByName([FromRoute]string name, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var dtos = await _userService.FindByName(name);
+        var dtos = await _userService.FindByName(name, pageNumber, pageSize);
         return Ok(dtos);
     }
 }

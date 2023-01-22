@@ -1,6 +1,7 @@
 using AutoMapper;
 using Cookfy.Entities;
 using Cookfy.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cookfy.Services;
@@ -8,8 +9,9 @@ namespace Cookfy.Services;
 public interface ICommentService
 {
     public Task Post(int postId, AddCommentDto dto);
-    public Task<List<CommentDto>> Get(int postId);
+    public Task<List<CommentDto>> Get(int postId, int pageNumber, int pageSize);
     public Task Delete(int postId,int commentId);
+    public Task<List<CommentDto>> GetUserComments( int pageNumber, int pageSize);
 }
 
 public class CommentService : ICommentService
@@ -34,10 +36,14 @@ public class CommentService : ICommentService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<CommentDto>> Get(int postId)
+    public async Task<List<CommentDto>> Get(int postId, int pageNumber, int pageSize)
     {
         var coments = await _context.Comments.Include(r => r.User)
-            .Where(r => r.PostId == postId).ToListAsync();
+            .Where(r => r.PostId == postId).
+            OrderByDescending(t => t.Id).
+            Skip(pageSize * (pageNumber - 1)).
+            Take(pageSize).ToListAsync();
+
         var comentsDto = _mapper.Map<List<CommentDto>>(coments);
         return comentsDto;
     }
@@ -48,5 +54,17 @@ public class CommentService : ICommentService
         var comment = await _context.Comments.FirstOrDefaultAsync(r => r.Id == commentId);
         _context.Comments.Remove(comment);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<CommentDto>> GetUserComments(int pageNumber, int pageSize)
+    {
+        var coments = await _context.Comments.Include(r => r.User)
+            .Where(r => r.UserId == _userContextService.GetUserId).
+            OrderByDescending(t => t.Id).
+            Skip(pageSize * (pageNumber - 1)).
+            Take(pageSize).ToListAsync();
+
+            var comentsDto = _mapper.Map<List<CommentDto>>(coments);
+            return comentsDto;
     }
 }

@@ -25,9 +25,16 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CommentDto>>> Post([FromRoute]int postId)
+    public async Task<ActionResult<List<CommentDto>>> GetCommentsFromPost([FromRoute]int postId, [FromQuery]int pageNumber, [FromQuery]int pageSize)
     {
-        var comments = await _service.Get(postId);
+        var comments = await _service.Get(postId, pageNumber, pageSize);
+        return Ok(comments);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<CommentDto>>> GetCurrentLogedUserComments([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var comments = await _service.GetUserComments(pageNumber, pageSize);
         return Ok(comments);
     }
 

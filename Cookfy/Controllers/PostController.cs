@@ -17,9 +17,9 @@ public class PostController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PostDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
-        var posts = await _service.GetAll();
+        var posts = await _service.GetAll(pageNumber, pageSize);
         return Ok(posts);
     }
 

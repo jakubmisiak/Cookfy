@@ -17,8 +17,8 @@ public interface IUserService
     public Task<List<UserDto>> GetAll();
     public Task<UserDto> GetUser(int id);
     public Task DeleteUser(int id);
-    public Task UpdateUser(int id, RegisterUserDto dto);
-    public Task<List<UserDto>> FindByName(string searchName);
+    public Task UpdateUser(int id, UpdateUserDto dto);
+    public Task<List<UserDto>> FindByName(string searchName, int pageNumber, int pageSize);
     public Task<string> GenerateJwt(LoginDto dto);
 }
 
@@ -28,12 +28,14 @@ public class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly IPasswordHasher<User> _passwordHasher;
     private readonly AuthenticationSettings _authenticationSettings;
-    public UserService(CookfyDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings)
+    private readonly IUserContextService _userContextService;
+    public UserService(CookfyDbContext dbContext, IMapper mapper, IPasswordHasher<User> passwordHasher, AuthenticationSettings authenticationSettings, IUserContextService userContextService)
     {
         _context = dbContext;
         _mapper = mapper;
         _passwordHasher = passwordHasher;
         _authenticationSettings = authenticationSettings;
+        _userContextService = userContextService;
     }
 
     public async Task RegisterUser(RegisterUserDto dto)
@@ -41,8 +43,8 @@ public class UserService : IUserService
         var newUser = new User()
         {
             UserName = dto.UserName,
-            Description = dto.Description,
-            Photo = dto.Photo
+            Password = dto.Password
+            
         };
         var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
         newUser.Password = hashedPassword;
@@ -71,7 +73,7 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateUser(int id, RegisterUserDto dto)
+    public async Task UpdateUser(int id, UpdateUserDto dto)
     {
         var user = await GetUserById(id);
 
@@ -82,6 +84,17 @@ public class UserService : IUserService
 
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<UserDto>> GetFollowedUsers(int pageNumber, int pageSize)
+    {
+        var followed = await _context.Follows.Where(s => s.FollowerUserId.Equals(_userContextService.GetUserId)).ToListAsync();
+        var users = await _context.Users.
+            Where(x => followed.Any(y => y.FollowedUserId == x.Id)).
+            Skip(pageSize * (pageNumber - 1)).
+            Take(pageSize).ToListAsync();
+        var usersDto = _mapper.Map<List<UserDto>>(users);
+        return usersDto;
     }
 
     public async Task<string> GenerateJwt(LoginDto dto)
@@ -122,9 +135,12 @@ public class UserService : IUserService
         return tokenHandler.WriteToken(token);
     }
     
-    public async Task<List<UserDto>> FindByName(string searchName)
+    public async Task<List<UserDto>> FindByName(string searchName, int pageNumber, int pageSize)
     {
-        var users = await _context.Users.Where(b => b.UserName.Contains(searchName)).ToListAsync();
+        var users = await _context.Users.Where(b => b.UserName.Contains(searchName)).
+            Skip(pageSize * (pageNumber - 1)).
+            Take(pageSize).
+            ToListAsync();
         var userDtos = _mapper.Map<List<UserDto>>(users);
         return userDtos;
     }

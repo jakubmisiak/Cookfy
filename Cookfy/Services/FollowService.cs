@@ -26,7 +26,7 @@ public class FollowService : IFollowService
         var follow = new Follow()
         {
             FollowedUserId = id,
-            FollowingUserId = _userContextService.GetUserId
+            FollowerUserId = _userContextService.GetUserId
         };
         _context.Follows.Add(follow);
         await _context.SaveChangesAsync();

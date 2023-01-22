@@ -1,6 +1,7 @@
 using AutoMapper;
 using Cookfy.Entities;
 using Cookfy.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 
@@ -8,7 +9,7 @@ namespace Cookfy.Services;
 
 public interface IPostService
 {
-    public Task<List<PostDto>> GetAll();
+    public Task<List<PostDto>> GetAll([FromQuery] int pageNumber, [FromQuery] int pageSize);
     public Task<PostDto> GetPost(int id);
     public Task AddPost(AddPostDto postDto);
     public Task Delete(int id);
@@ -29,11 +30,35 @@ public class PostService : IPostService
         _userContextService = userContextService;
     }
 
-    public async Task<List<PostDto>> GetAll()
+    public async Task<List<PostDto>> GetAll(int pageNumber, int pageSize)
     {
-       var posts = await _context.Posts.Include(r => r.User).ToListAsync();
+       var posts = await _context.Posts.Include(r => r.User).OrderByDescending(t => t.Id).Skip(pageSize * (pageNumber - 1)).Take(pageSize).ToListAsync();
        var postsDto = _mapper.Map<List<PostDto>>(posts);
        return postsDto;
+    }
+
+    public async Task<List<TrendingPostDto>> GetTrending()
+    {
+        var date = DateTime.Now.AddDays(-7);
+        var likes = await _context.Likes.ToListAsync();
+        var posts = await _context.Posts.
+            Include(r => r.User).
+            Where(r => r.Date >= date)
+            .ToListAsync();
+        var postsDto = _mapper.Map<List<TrendingPostDto>>(posts);
+        return postsDto;
+    }
+
+    public async Task<List<PostDto>> GetAllFolowed(int pageNumber, int pageSize)
+    {
+        var followed = await _context.Follows.Where(s => s.FollowerUserId.Equals(_userContextService.GetUserId)).ToListAsync();
+        var posts = await _context.Posts.Include(r => r.User).
+            Where( x => followed.Any( y => y.FollowedUserId == x.UserId)).
+            OrderByDescending(t => t.Id).
+            Skip(pageSize * (pageNumber-1)).
+            Take(pageSize).ToListAsync();
+        var postsDto = _mapper.Map<List<PostDto>>(posts);
+        return postsDto;
     }
 
     public async Task<PostDto> GetPost(int id)
@@ -41,6 +66,18 @@ public class PostService : IPostService
         var post = await GetPostById(id);
         var postDto = _mapper.Map<PostDto>(post);
         return postDto;
+    }
+
+    public async Task<List<PostDto>> GetFavoritesPosts(int pageNumber, int pageSize)
+    {
+        var liked = await _context.Likes.Where(s => s.UserId.Equals(_userContextService.GetUserId)).ToListAsync();
+        var posts = await _context.Posts.Include(r => r.User).
+            Where(x => liked.Any(y => y.PostId == x.Id)).
+            OrderByDescending(t => t.Id).
+            Skip(pageSize * (pageNumber - 1)).
+            Take(pageSize).ToListAsync();
+        var postsDto = _mapper.Map<List<PostDto>>(posts);
+        return postsDto;
     }
 
     public async Task AddPost(AddPostDto postDto)

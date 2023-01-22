@@ -9,7 +9,6 @@ public class RegisterUserDtoValidator : AbstractValidator<RegisterUserDto>
     {
         RuleFor(x => x.UserName).NotEmpty();
         RuleFor(x => x.Password).MinimumLength(6);
-        RuleFor(x => x.ConfirmPassword).Equal(e => e.Password);
         RuleFor(x => x.UserName)
             .Custom((value, context) =>
             {
