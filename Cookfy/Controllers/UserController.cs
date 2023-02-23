@@ -66,4 +66,18 @@ public class UserController : ControllerBase
         var dtos = await _userService.FindByName(name, pageNumber, pageSize);
         return Ok(dtos);
     }
+
+    [HttpGet("followed")]
+    public async Task<ActionResult<List<UserDto>>> GetFollowedUser([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var dtos = await _userService.GetFollowedUsers(pageNumber, pageSize);
+        return Ok(dtos);
+    }
+
+    [HttpGet("me")]
+    public ActionResult<UserDto> GetCurrentLoggedUser()
+    {
+        var user = _userService.GetCurrentLoggedUser();
+        return Ok(user);
+    }
 }

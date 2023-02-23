@@ -59,4 +59,18 @@ public class PostController : ControllerBase
         return Ok(dtos);
     }
 
+
+    [HttpGet("favorites")]
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetFavPosts([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var posts = await _service.GetFavoritesPosts(pageNumber, pageSize);
+        return Ok(posts);
+    }
+
+    [HttpGet("follow")]
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetFollowedPosts([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var posts = await _service.GetAllFolowed(pageNumber, pageSize);
+        return Ok(posts);
+    }
 }

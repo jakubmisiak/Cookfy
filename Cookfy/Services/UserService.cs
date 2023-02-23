@@ -20,6 +20,8 @@ public interface IUserService
     public Task UpdateUser(int id, UpdateUserDto dto);
     public Task<List<UserDto>> FindByName(string searchName, int pageNumber, int pageSize);
     public Task<string> GenerateJwt(LoginDto dto);
+    public Task<List<UserDto>> GetFollowedUsers(int pageNumber, int pageSize);
+    public Task<UserDto> GetCurrentLoggedUser();
 }
 
 public class UserService : IUserService
@@ -95,6 +97,13 @@ public class UserService : IUserService
             Take(pageSize).ToListAsync();
         var usersDto = _mapper.Map<List<UserDto>>(users);
         return usersDto;
+    }
+
+    public async Task<UserDto> GetCurrentLoggedUser()
+    {
+        var user = await GetUserById((int)_userContextService.GetUserId!);
+        var userDto = _mapper.Map<UserDto>(user);
+        return userDto;
     }
 
     public async Task<string> GenerateJwt(LoginDto dto)

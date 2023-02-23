@@ -15,6 +15,8 @@ public interface IPostService
     public Task Delete(int id);
     public Task UpdatePost(int id, AddPostDto dto);
     public Task<List<PostDto>> FindByName(string searchName);
+    Task<List<PostDto>> GetFavoritesPosts(int pageNumber, int pageSize);
+    public Task<List<PostDto>> GetAllFolowed(int pageNumber, int pageSize);
 }
 
 public class PostService : IPostService
@@ -53,7 +55,7 @@ public class PostService : IPostService
     {
         var followed = await _context.Follows.Where(s => s.FollowerUserId.Equals(_userContextService.GetUserId)).ToListAsync();
         var posts = await _context.Posts.Include(r => r.User).
-            Where( x => followed.Any( y => y.FollowedUserId == x.UserId)).
+            Where( x => x.Id == 1).
             OrderByDescending(t => t.Id).
             Skip(pageSize * (pageNumber-1)).
             Take(pageSize).ToListAsync();
@@ -71,8 +73,9 @@ public class PostService : IPostService
     public async Task<List<PostDto>> GetFavoritesPosts(int pageNumber, int pageSize)
     {
         var liked = await _context.Likes.Where(s => s.UserId.Equals(_userContextService.GetUserId)).ToListAsync();
+        var likedPostsIds = GetFavoritePostsIds(liked);
         var posts = await _context.Posts.Include(r => r.User).
-            Where(x => liked.Any(y => y.PostId == x.Id)).
+            Where(x => likedPostsIds.Contains(x.Id)).
             OrderByDescending(t => t.Id).
             Skip(pageSize * (pageNumber - 1)).
             Take(pageSize).ToListAsync();
@@ -112,4 +115,17 @@ public class PostService : IPostService
     }
 
     private async Task<Post> GetPostById(int id) => await _context.Posts.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
+
+    private List<int?> GetFavoritePostsIds(List<Like> likes) 
+    {
+        var results = new List<int?>();
+        foreach (var like in likes)
+        {
+            if (!results.Contains(like.PostId))
+            {
+                results.Add(like.PostId);
+            }
+        }
+        return results;
+    }
 }

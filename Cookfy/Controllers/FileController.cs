@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Cookfy.Controllers
 {
-    [Route("file")]
+    [Route("api/file")]
     public class FileController : ControllerBase
     {
         [HttpGet("pic")]
