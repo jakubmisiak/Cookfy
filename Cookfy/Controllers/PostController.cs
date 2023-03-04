@@ -73,4 +73,11 @@ public class PostController : ControllerBase
         var posts = await _service.GetAllFolowed(pageNumber, pageSize);
         return Ok(posts);
     }
+
+    [HttpGet("trending")]
+    public async Task<ActionResult<IEnumerable<TrendingPostDto>>> GetTrendingPosts()
+    {
+        var posts = await _service.GetTrending();
+        return Ok(posts);
+    }
 }

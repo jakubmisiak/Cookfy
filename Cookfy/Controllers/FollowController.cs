@@ -16,10 +16,10 @@ public class FollowController : ControllerBase
         _service = service;
     }
     
-    [HttpPost]
-    public async Task<ActionResult> Post([FromRoute] int postId)
+    [HttpPost("{id}")]
+    public async Task<ActionResult> Post([FromRoute] int id)
     {
-        await _service.Post(postId);
+        await _service.Post(id);
         return Ok();
     }
 

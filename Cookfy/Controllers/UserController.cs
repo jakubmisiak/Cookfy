@@ -75,9 +75,17 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize]
     public ActionResult<UserDto> GetCurrentLoggedUser()
     {
         var user = _userService.GetCurrentLoggedUser();
         return Ok(user);
+    }
+
+    [HttpPost("isLogged")]
+    [Authorize]
+    public ActionResult IsUserLogged()
+    {
+        return Ok(true);
     }
 }

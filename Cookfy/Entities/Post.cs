@@ -9,4 +9,5 @@ public class Post
     public string Photo { get; set; }
     public DateTime Date { get; set; }
     public string Value { get; set; }
+    public virtual List<Like> Likes { get; set; }
 }

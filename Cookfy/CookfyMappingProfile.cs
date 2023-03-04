@@ -15,5 +15,6 @@ public class CookfyMappingProfile : Profile
         CreateMap<AddCommentDto, Comment>();
         CreateMap<Comment, CommentDto>();
         CreateMap<LoginDto, User>();
+        CreateMap<Post, TrendingPostDto>().ForMember(m => m.LikeCount, c => c.MapFrom(s => s.Likes.Count));
     }
 }

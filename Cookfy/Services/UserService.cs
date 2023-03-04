@@ -147,8 +147,8 @@ public class UserService : IUserService
     public async Task<List<UserDto>> FindByName(string searchName, int pageNumber, int pageSize)
     {
         var users = await _context.Users.Where(b => b.UserName.Contains(searchName)).
-            Skip(pageSize * (pageNumber - 1)).
-            Take(pageSize).
+            //Skip(pageSize * (pageNumber - 1)).
+            //Take(pageSize).
             ToListAsync();
         var userDtos = _mapper.Map<List<UserDto>>(users);
         return userDtos;

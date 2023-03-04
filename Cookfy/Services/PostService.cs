@@ -17,6 +17,7 @@ public interface IPostService
     public Task<List<PostDto>> FindByName(string searchName);
     Task<List<PostDto>> GetFavoritesPosts(int pageNumber, int pageSize);
     public Task<List<PostDto>> GetAllFolowed(int pageNumber, int pageSize);
+    public Task<List<TrendingPostDto>> GetTrending();
 }
 
 public class PostService : IPostService
@@ -42,20 +43,32 @@ public class PostService : IPostService
     public async Task<List<TrendingPostDto>> GetTrending()
     {
         var date = DateTime.Now.AddDays(-7);
-        var likes = await _context.Likes.ToListAsync();
         var posts = await _context.Posts.
             Include(r => r.User).
+            Include(l => l.Likes).
             Where(r => r.Date >= date)
             .ToListAsync();
-        var postsDto = _mapper.Map<List<TrendingPostDto>>(posts);
-        return postsDto;
+        var postsDto = _mapper.Map<List<TrendingPostDto>>(posts).OrderByDescending(l => l.LikeCount).ToList();
+        
+        var listLength = postsDto.Count;
+
+        if (listLength < 10)
+        {
+            return postsDto.GetRange(0, listLength);
+        }
+        else
+        {
+            return postsDto.GetRange(0 ,10);
+        }
+
     }
 
     public async Task<List<PostDto>> GetAllFolowed(int pageNumber, int pageSize)
     {
         var followed = await _context.Follows.Where(s => s.FollowerUserId.Equals(_userContextService.GetUserId)).ToListAsync();
+        var followedUsersIds = GetFollowedUsersIds(followed);
         var posts = await _context.Posts.Include(r => r.User).
-            Where( x => x.Id == 1).
+            Where( x => followedUsersIds.Contains(x.UserId)).
             OrderByDescending(t => t.Id).
             Skip(pageSize * (pageNumber-1)).
             Take(pageSize).ToListAsync();
@@ -109,7 +122,7 @@ public class PostService : IPostService
 
     public async Task<List<PostDto>> FindByName(string searchName)
     {
-        var posts = await _context.Posts.Where(b => b.Title.Contains(searchName)).ToListAsync();
+        var posts = await _context.Posts.Include(r => r.User).Where(b => b.Title.Contains(searchName)).ToListAsync();
         var postsDto = _mapper.Map<List<PostDto>>(posts);
         return postsDto;
     }
@@ -124,6 +137,19 @@ public class PostService : IPostService
             if (!results.Contains(like.PostId))
             {
                 results.Add(like.PostId);
+            }
+        }
+        return results;
+    }
+
+    private List<int?> GetFollowedUsersIds(List<Follow> follows)
+    {
+        var results = new List<int?>();
+        foreach (var follow in follows)
+        {
+            if (!results.Contains(follow.FollowedUserId))
+            {
+                results.Add(follow.FollowedUserId);
             }
         }
         return results;
