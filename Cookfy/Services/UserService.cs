@@ -17,7 +17,7 @@ public interface IUserService
     public Task<List<UserDto>> GetAll();
     public Task<UserDto> GetUser(int id);
     public Task DeleteUser(int id);
-    public Task UpdateUser(int id, UpdateUserDto dto);
+    public Task UpdateUser(UpdateUserDto dto);
     public Task<List<UserDto>> FindByName(string searchName, int pageNumber, int pageSize);
     public Task<string> GenerateJwt(LoginDto dto);
     public Task<List<UserDto>> GetFollowedUsers(int pageNumber, int pageSize);
@@ -75,12 +75,11 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateUser(int id, UpdateUserDto dto)
+    public async Task UpdateUser(UpdateUserDto dto)
     {
+        var id = (int)_userContextService.GetUserId;
         var user = await GetUserById(id);
 
-        user.UserName = dto.UserName;
-        user.Password = dto.Password;
         user.Photo = dto.Photo;
         user.Description = dto.Description;
 

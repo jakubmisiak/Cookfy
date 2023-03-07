@@ -45,10 +45,11 @@ public class UserController : ControllerBase
         return Ok();
     }
 
-    [HttpPut("update/{id}")]
-    public async Task<ActionResult> UpdateUser([FromRoute]int id, [FromBody]UpdateUserDto dto)
+    [HttpPut("update")]
+    [Authorize]
+    public async Task<ActionResult> UpdateUser([FromBody]UpdateUserDto dto)
     {
-        await _userService.UpdateUser(id, dto);
+        await _userService.UpdateUser(dto);
         return Ok();
     }
 
