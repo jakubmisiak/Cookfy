@@ -1,4 +1,5 @@
 using Cookfy.Entities;
+using Cookfy.Models;
 using Cookfy.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,16 +25,16 @@ public class LikeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Like>>> Get([FromRoute] int postId)
+    public async Task<ActionResult<List<LikeDto>>> Get([FromRoute] int postId)
     {
         var likes = await _service.Get(postId);
         return Ok(likes);
     }
 
-    [HttpDelete("{likeId}")]
-    public async Task<ActionResult> Delete([FromRoute] int postId, [FromRoute] int likeId)
+    [HttpDelete]
+    public async Task<ActionResult> Delete([FromRoute] int postId)
     {
-        await _service.Delete(postId, likeId);
+        await _service.Delete(postId);
         return NoContent();
     }
 }

@@ -8,7 +8,7 @@ public interface ILikeService
 {
     public Task Post(int id);
     public Task<LikeDto> Get(int id);
-    public Task Delete(int postId, int likeId);
+    public Task Delete(int postId);
 }
 
 public class LikeService : ILikeService
@@ -39,14 +39,14 @@ public class LikeService : ILikeService
         var likes = new LikeDto()
         {
             LikesCount = likesCount,
-            CurrentUserLike = currentUserLike
+            CurrentUserLikes = currentUserLike
         };
         return likes;
     }
 
-    public async Task Delete(int postId, int likeId)
+    public async Task Delete(int postId)
     {
-        var like = await _context.Likes.FirstOrDefaultAsync(r => r.Id == likeId);
+        var like = await _context.Likes.FirstOrDefaultAsync(r => r.UserId == _userContextService.GetUserId && r.PostId == postId);
         _context.Likes.Remove(like);
         await _context.SaveChangesAsync();
     }

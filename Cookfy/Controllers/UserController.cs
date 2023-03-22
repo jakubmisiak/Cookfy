@@ -77,9 +77,9 @@ public class UserController : ControllerBase
 
     [HttpGet("me")]
     [Authorize]
-    public ActionResult<UserDto> GetCurrentLoggedUser()
+    public async Task<ActionResult<UserDto>> GetCurrentLoggedUser()
     {
-        var user = _userService.GetCurrentLoggedUser();
+        var user = await _userService.GetCurrentLoggedUser();
         return Ok(user);
     }
 

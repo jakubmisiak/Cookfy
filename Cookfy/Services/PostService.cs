@@ -18,6 +18,7 @@ public interface IPostService
     Task<List<PostDto>> GetFavoritesPosts(int pageNumber, int pageSize);
     public Task<List<PostDto>> GetAllFolowed(int pageNumber, int pageSize);
     public Task<List<TrendingPostDto>> GetTrending();
+    public Task<List<PostDto>> GetUserPosts(int userId, int pageNumber, int pageSize);
 }
 
 public class PostService : IPostService
@@ -71,6 +72,17 @@ public class PostService : IPostService
             Where( x => followedUsersIds.Contains(x.UserId)).
             OrderByDescending(t => t.Id).
             Skip(pageSize * (pageNumber-1)).
+            Take(pageSize).ToListAsync();
+        var postsDto = _mapper.Map<List<PostDto>>(posts);
+        return postsDto;
+    }
+
+    public async Task<List<PostDto>> GetUserPosts(int userId, int pageNumber, int pageSize)
+    {
+        var posts = await _context.Posts.Include(r => r.User).
+            Where(x => x.UserId == userId).
+            OrderByDescending(t => t.Id).
+            Skip(pageSize * (pageNumber - 1)).
             Take(pageSize).ToListAsync();
         var postsDto = _mapper.Map<List<PostDto>>(posts);
         return postsDto;

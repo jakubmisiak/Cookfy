@@ -45,7 +45,9 @@ public class UserService : IUserService
         var newUser = new User()
         {
             UserName = dto.UserName,
-            Password = dto.Password
+            Password = dto.Password,
+            Photo = "",
+            Description = ""
             
         };
         var hashedPassword = _passwordHasher.HashPassword(newUser, dto.Password);
@@ -100,7 +102,8 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetCurrentLoggedUser()
     {
-        var user = await GetUserById((int)_userContextService.GetUserId!);
+        var id = (int)_userContextService.GetUserId;
+        var user = await GetUserById(id);
         var userDto = _mapper.Map<UserDto>(user);
         return userDto;
     }
