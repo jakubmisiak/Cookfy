@@ -1,4 +1,5 @@
 using Cookfy.Entities;
+using Cookfy.Models;
 using Cookfy.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,24 +17,24 @@ public class FollowController : ControllerBase
         _service = service;
     }
     
-    [HttpPost("{id}")]
-    public async Task<ActionResult> Post([FromRoute] int id)
+    [HttpPost("{userId}")]
+    public async Task<ActionResult> Post([FromRoute] int userId)
     {
-        await _service.Post(id);
+        await _service.Post(userId);
         return Ok();
     }
 
-    [HttpGet]
-    public async Task<ActionResult<List<Follow>>> Get([FromRoute] int postId)
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<FollowDto>> Get([FromRoute] int userId)
     {
-        var likes = await _service.Get(postId);
+        var likes = await _service.Get(userId);
         return Ok(likes);
     }
 
-    [HttpDelete("{likeId}")]
-    public async Task<ActionResult> Delete([FromRoute] int postId, [FromRoute] int likeId)
+    [HttpDelete("{userId}")]
+    public async Task<ActionResult> Delete([FromRoute] int userId)
     {
-        await _service.Delete(postId, likeId);
+        await _service.Delete(userId);
         return NoContent();
     }
 }

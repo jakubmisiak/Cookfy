@@ -32,7 +32,7 @@ public class CommentController : ControllerBase
     }
     
     [HttpGet("loggedUser")]
-    public async Task<ActionResult<List<CommentDto>>> GetCurrentLogedUserComments([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    public async Task<ActionResult<List<UserCommentDto>>> GetCurrentLogedUserComments([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         var comments = await _service.GetUserComments(pageNumber, pageSize);
         return Ok(comments);

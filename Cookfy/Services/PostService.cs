@@ -127,9 +127,11 @@ public class PostService : IPostService
 
     public async Task Delete(int id)
     {
-        var post = await GetPostById(id);
+        var post = await _context
+                .Posts
+                .FirstOrDefaultAsync(r => r.Id == id);
         _context.Posts.Remove(post);
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
     public async Task<List<PostDto>> FindByName(string searchName)

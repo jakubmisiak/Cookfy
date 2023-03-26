@@ -11,7 +11,7 @@ public interface ICommentService
     public Task Post(int postId, AddCommentDto dto);
     public Task<List<CommentDto>> Get(int postId, int pageNumber, int pageSize);
     public Task Delete(int postId,int commentId);
-    public Task<List<CommentDto>> GetUserComments( int pageNumber, int pageSize);
+    public Task<List<UserCommentDto>> GetUserComments( int pageNumber, int pageSize);
 }
 
 public class CommentService : ICommentService
@@ -56,15 +56,16 @@ public class CommentService : ICommentService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<CommentDto>> GetUserComments(int pageNumber, int pageSize)
+    public async Task<List<UserCommentDto>> GetUserComments(int pageNumber, int pageSize)
     {
         var coments = await _context.Comments.Include(r => r.User)
             .Where(r => r.UserId == _userContextService.GetUserId).
+            Include(p => p.Post).
             OrderByDescending(t => t.Id).
             Skip(pageSize * (pageNumber - 1)).
             Take(pageSize).ToListAsync();
 
-            var comentsDto = _mapper.Map<List<CommentDto>>(coments);
+            var comentsDto = _mapper.Map<List<UserCommentDto>>(coments);
             return comentsDto;
     }
 }

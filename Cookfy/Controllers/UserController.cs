@@ -11,10 +11,12 @@ namespace Cookfy.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ICommentService _commentService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, ICommentService commentService)
     {
         _userService = userService;
+        _commentService = commentService;
     }
 
     [HttpPost("register")]
@@ -81,6 +83,13 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetCurrentLoggedUser();
         return Ok(user);
+    }
+
+    [HttpGet("comments")]
+    public async Task<ActionResult<List<UserCommentDto>>> GetCurrentLogedUserComments([FromQuery] int pageNumber, [FromQuery] int pageSize)
+    {
+        var comments = await _commentService.GetUserComments(pageNumber, pageSize);
+        return Ok(comments);
     }
 
     [HttpPost("isLogged")]

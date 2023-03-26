@@ -27,7 +27,6 @@
     <ItemGroup>
       <Folder Include="Migrations" />
       <Folder Include="PrivateFiles\ProfilePictures\" />
-      <Folder Include="PrivateFiles\Pictures\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 
